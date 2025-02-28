@@ -40,7 +40,7 @@ const getPhotos = async (): Promise<PexelsResponse> => {
     }
 
     const response = await axios.get<PexelsResponse>(
-      'https://api.pexels.com/v1/curated?per_page=15',
+      'https://api.pexels.com/v1/curated?per_page=30',
       {
         headers: {
           Authorization: apiKey,
