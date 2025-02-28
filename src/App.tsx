@@ -1,42 +1,31 @@
-import React from 'react';
-import axios from 'axios';
-import './App.css';
+import styled from 'styled-components';
+import PhotoGallery from './components/PhotoGallery';
 
-// TODO: update to actual API response type
-interface ApiResponse {
-  data: any[];
-}
+const AppContainer = styled.div`
+  text-align: center;
+  font-family: sans-serif;
+`;
+
+const AppHeader = styled.header`
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  font-size: calc(10px + 2vmin);
+  color: white;
+  padding: 20px;
+`;
 
 function App() {
-
-  const fetchPhotos = async () => {
-    try {
-      const apiKey = process.env.REACT_APP_PEXELS_API_KEY;
-      if(!apiKey) {
-        throw new Error('API key not found');
-      }
-
-      const response = await axios.get<ApiResponse>(`https://api.pexels.com/v1/curated?per_page=15`, {
-        headers: {
-          Authorization: apiKey
-        }
-      });
-    } catch (error) {
-      console.error('Error fetching photos', error);
-    }
-  }
-
   return (
-    <div className="App">
-      <header className="App-header">
-        <button 
-          className="App-link"
-          onClick={fetchPhotos}
-        >
-          Click here to load photos
-        </button>
-      </header>
-    </div>
+    <AppContainer>
+      <AppHeader>
+        <h1>Pexels Photo Gallery</h1>
+        <PhotoGallery />
+      </AppHeader>
+    </AppContainer>
   );
 }
 
