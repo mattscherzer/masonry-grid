@@ -35,7 +35,7 @@ export interface PexelsResponse {
 const cache: { [key: string]: { data: unknown; timestamp: number } } = {};
 const CACHE_EXPIRY_MS = 1000 * 60 * 5; // 5 minutes
 
-const getPhotos = async (): Promise<PexelsResponse> => {
+const getPhotos = async (per_page: number = 15, page: number = 1): Promise<PexelsResponse> => {
     const cacheKey = 'photoGallery';
 
     if (cache[cacheKey] && Date.now() - cache[cacheKey].timestamp < CACHE_EXPIRY_MS) {
@@ -49,7 +49,7 @@ const getPhotos = async (): Promise<PexelsResponse> => {
         }
 
         const response = await axios.get<PexelsResponse>(
-            'https://api.pexels.com/v1/curated?per_page=30',
+            `https://api.pexels.com/v1/curated?per_page=${per_page}&page=${page}`,
             {
                 headers: {
                     Authorization: apiKey,

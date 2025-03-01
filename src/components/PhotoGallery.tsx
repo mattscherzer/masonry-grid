@@ -59,7 +59,7 @@ const ErrorMessage = styled.div`
 
 const PhotoGallery: React.FC = () => {
     // Hooks
-    const { photos, loading, error, fetchPhotos } = useGallery(); // TODO: Add Loading state to UI
+    const { photos, loading, error, fetch, loadMore } = useGallery(); // TODO: Add Loading state to UI
     const navigate = useNavigate();
     
     // State variables
@@ -67,8 +67,8 @@ const PhotoGallery: React.FC = () => {
     const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
 
     const memoizedFetchPhotos = useCallback(() => {
-        fetchPhotos();
-    }, [fetchPhotos]);
+        fetch();
+    }, [fetch]);
 
     useEffect(() => {
         memoizedFetchPhotos();
