@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { getPhotos, Photo, PexelsResponse } from '../services/pexels';
 
-const usePhotos = () => {
+const useGallery = () => {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,4 +25,4 @@ const usePhotos = () => {
   return { photos, loading, error, fetchPhotos };
 };
 
-export default usePhotos;
+export default useGallery;

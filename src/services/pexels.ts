@@ -55,4 +55,27 @@ const getPhotos = async (): Promise<PexelsResponse> => {
   }
 };
 
-export { getPhotos };
+const getPhoto = async (id: number): Promise<Photo> => {
+    try {
+        const apiKey = process.env.REACT_APP_PEXELS_API_KEY;
+        if (!apiKey) {
+            throw new Error("API key is missing.");
+        }
+    
+        const response = await axios.get<Photo>(
+            `https://api.pexels.com/v1/photos/${id}`,
+            {
+            headers: {
+                Authorization: apiKey,
+            },
+            }
+        );
+    
+        return response.data;
+    } catch (error: any) {
+        console.error("Error fetching photo", error);
+        throw error;
+    }
+}
+
+export { getPhotos, getPhoto };

@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import usePhotos from '../hooks/usePhotos';
+import { useNavigate } from 'react-router-dom';
+import useGallery from '../hooks/useGallery';
+import { Photo } from '../services/pexels';
+import PhotoDetail from './PhotoDetail';
 
 const GalleryContainer = styled.div`
   padding: 20px;
@@ -20,6 +23,7 @@ const GridItem = styled.div`
   position: relative;
   border-radius: 5px;
   overflow: hidden;
+  cursor: pointer;
 
   img {
     position: absolute;
@@ -73,7 +77,23 @@ const FetchButton = styled.button`
 `;
 
 const PhotoGallery: React.FC = () => {
-  const { photos, loading, error, fetchPhotos } = usePhotos();
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
+
+  const { photos, loading, error, fetchPhotos } = useGallery();
+  const navigate = useNavigate();
+
+  const openModal = (photo: Photo) => {
+    setIsModalOpen(true);
+    setSelectedPhoto(photo);
+    navigate(`/photo/${photo.id}`);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedPhoto(null);
+    navigate("/");
+  }
 
   return (
     <GalleryContainer>
@@ -87,8 +107,13 @@ const PhotoGallery: React.FC = () => {
           const aspectRatio = photo.height / photo.width;
           const imageHeight = imageWidth * aspectRatio;
           const gridRowSpan = Math.ceil(imageHeight / 10);
+
           return (
-            <GridItem key={photo.id} style={{ gridRowEnd: `span ${gridRowSpan}` }}>
+            <GridItem 
+                key={photo.id}
+                style={{ gridRowEnd: `span ${gridRowSpan}` }} 
+                onClick={() => openModal(photo)}
+            >
               <img
                 src={photo.src.tiny}
                 alt={photo.alt}
@@ -106,6 +131,9 @@ const PhotoGallery: React.FC = () => {
           );
         })}
       </MasonryGrid>
+      {isModalOpen && selectedPhoto && (
+        <PhotoDetail photo={selectedPhoto} closeModal={closeModal} />
+      )}
     </GalleryContainer>
   );
 };

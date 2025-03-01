@@ -1,5 +1,7 @@
 import styled from 'styled-components';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'; // Import necessary components
 import PhotoGallery from './components/PhotoGallery';
+import PhotoDetail from './components/PhotoDetail';
 
 const AppContainer = styled.div`
   text-align: center;
@@ -20,12 +22,17 @@ const AppHeader = styled.header`
 
 function App() {
   return (
-    <AppContainer>
-      <AppHeader>
-        <h1>Pexels Photo Gallery</h1>
-        <PhotoGallery />
-      </AppHeader>
-    </AppContainer>
+    <Router>
+      <AppContainer>
+        <AppHeader>
+          <h1>Pexels Photo Gallery</h1>
+          <Routes>
+              <Route path="/" element={<PhotoGallery />} />
+              <Route path="/photo/:id" element={<PhotoDetail />} />
+            </Routes>
+        </AppHeader>
+      </AppContainer>
+    </Router>
   );
 }
 
