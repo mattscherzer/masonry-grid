@@ -1,12 +1,16 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import useGallery from '../hooks/useGallery';
 import { Photo } from '../services/pexels';
 import PhotoDetail from './PhotoDetail';
+import useIntersectionObserver from '../hooks/useIntersectionObserver';
+
+const GALLERY_PADDING = 20;
+const GRID_GAP = 10;
 
 const GalleryContainer = styled.div`
-    padding: 20px;
+    padding: ${GALLERY_PADDING}px;
     width: 80%;
     margin: 0 auto;
 `;
@@ -14,7 +18,7 @@ const GalleryContainer = styled.div`
 const MasonryGrid = styled.div`
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-    grid-gap: 10px;
+    grid-gap: ${GRID_GAP}px;
     grid-auto-rows: 10px;
 `;
 
@@ -59,12 +63,13 @@ const ErrorMessage = styled.div`
 
 const PhotoGallery: React.FC = () => {
     // Hooks
-    const { photos, loading, error, fetch, loadMore } = useGallery(); // TODO: Add Loading state to UI
+    const { photos, loading, error, hasMore, page, fetch, loadMore } = useGallery();
     const navigate = useNavigate();
     
     // State variables
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
+    const galleryRef = useRef<HTMLDivElement>(null);
 
     const memoizedFetchPhotos = useCallback(() => {
         fetch();
@@ -72,7 +77,7 @@ const PhotoGallery: React.FC = () => {
 
     useEffect(() => {
         memoizedFetchPhotos();
-    }, [memoizedFetchPhotos]);
+    }, [memoizedFetchPhotos, page]);
 
     // Functions
     const openModal = (photo: Photo) => {
@@ -87,42 +92,48 @@ const PhotoGallery: React.FC = () => {
         navigate("/");
     }
 
-    return (
-        <GalleryContainer>
-        {error && <ErrorMessage>Error: {error}</ErrorMessage>}
-        <MasonryGrid>
-            {photos.map((photo) => {
-            const imageWidth = 250;
-            const aspectRatio = photo.height / photo.width;
-            const imageHeight = imageWidth * aspectRatio;
-            const gridRowSpan = Math.ceil(imageHeight / 10);
+    const setSentinelRef = useIntersectionObserver({ onIntersect: loadMore });
 
-            return (
-                <GridItem 
-                    key={photo.id}
-                    style={{ gridRowEnd: `span ${gridRowSpan}` }} 
-                    onClick={() => openModal(photo)}
-                >
-                <img
-                    src={photo.src.tiny}
-                    alt={photo.alt}
-                    className="placeholder"
-                />
-                <img
-                    src={photo.src.large2x}
-                    alt={photo.alt}
-                    className="loaded loading"
-                    onLoad={(e) => {
-                    e.currentTarget.classList.remove("loading");
-                    }}
-                />
-                </GridItem>
-            );
-            })}
-        </MasonryGrid>
-        {isModalOpen && selectedPhoto && (
-            <PhotoDetail photo={selectedPhoto} closeModal={closeModal} />
-        )}
+    return (
+        <GalleryContainer ref={galleryRef}>
+            {error && <ErrorMessage>Error: {error}</ErrorMessage>}
+            <MasonryGrid>
+                {photos.map((photo) => {
+                const imageWidth = 250;
+                const aspectRatio = photo.height / photo.width;
+                const imageHeight = imageWidth * aspectRatio;
+                const gridRowSpan = Math.ceil(imageHeight / 10);
+
+                return (
+                        <GridItem 
+                            key={photo.id}
+                            style={{ gridRowEnd: `span ${gridRowSpan}` }} 
+                            onClick={() => openModal(photo)}
+                        >
+                        <img
+                            src={photo.src.tiny}
+                            alt={photo.alt}
+                            className="placeholder"
+                        />
+                        <img
+                            src={photo.src.large2x}
+                            alt={photo.alt}
+                            className="loaded loading"
+                            onLoad={(e) => {
+                            e.currentTarget.classList.remove("loading");
+                            }}
+                        />
+                        </GridItem>
+                    );
+                })}    
+            </MasonryGrid>
+
+            {loading && <div>Loading...</div>} {/* Improve UI for Loading state (skeleton placeholder?) */}
+            {hasMore && <div ref={setSentinelRef}>Loading more photos...</div>}
+
+            {isModalOpen && selectedPhoto && (
+                <PhotoDetail photo={selectedPhoto} closeModal={closeModal} />
+            )}
         </GalleryContainer>
     );
 };

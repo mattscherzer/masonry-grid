@@ -36,7 +36,7 @@ const cache: { [key: string]: { data: unknown; timestamp: number } } = {};
 const CACHE_EXPIRY_MS = 1000 * 60 * 5; // 5 minutes
 
 const getPhotos = async (per_page: number = 15, page: number = 1): Promise<PexelsResponse> => {
-    const cacheKey = 'photoGallery';
+    const cacheKey = `photoGallery-${page}`;
 
     if (cache[cacheKey] && Date.now() - cache[cacheKey].timestamp < CACHE_EXPIRY_MS) {
         return cache[cacheKey].data as PexelsResponse;

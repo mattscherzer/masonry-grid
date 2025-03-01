@@ -30,7 +30,7 @@ const useGallery = () => {
     }
   }
 
-  return { photos, loading, error, fetch, loadMore };
+  return { photos, loading, error, hasMore, page, fetch, loadMore };
 };
 
 export default useGallery;
